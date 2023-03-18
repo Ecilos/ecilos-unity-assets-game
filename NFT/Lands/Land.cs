@@ -10,11 +10,12 @@ public class Land : MonoBehaviour {
 
   // Static variable to keep track of attached instances of this script
   private Account accountInfo;
-  private List<Solana.Unity.Wallet.Account> accountInfoList;
+  private List<AccountInfo> accountInfoList = new List<AccountInfo>();
   private bool scriptAttached = false;
-  private static readonly IRpcClient rpcSolanaClient = ClientFactory.GetClient(Cluster.MainNet);
-  public int xPos = 0; // Position X.
-  public int yPos = 0; // Position Y.
+  private static readonly IRpcClient rpcSolanaClient =
+      ClientFactory.GetClient(Cluster.MainNet);
+  public int xPos = 0;                 // Position X.
+  public int yPos = 0;                 // Position Y.
   public string nftSolanaAddress = ""; // NFT Solana address.
 
   void Awake() {
@@ -29,24 +30,19 @@ public class Land : MonoBehaviour {
     scriptAttached = true;
   }
 
-  public async void GetAccountInfo()
-  {
-      // Convert the NFT address string to a PublicKey object.
-      PublicKey nftPublicKey = new PublicKey(nftSolanaAddress);
-      // Get the account info of the NFT.
-      var accountInfoResult = await rpcSolanaClient.GetAccountInfoAsync(nftPublicKey);
-      if (accountInfoResult.WasSuccessful) {
-        //accountInfo = accountInfoResult.Result.Value.Data;
-        //accountInfoList = new List<Solana.Unity.Wallet.Account>();
-        List<AccountInfo> accountInfoList = new List<AccountInfo>();
-        accountInfoList.Add(accountInfoResult.Result.Value);
-      }
-      else
-      {
-          Debug.LogError($"Failed to get account info: {accountInfoResult}");
-      }
-      PrintAccountInfo(accountInfoList);
-      // accountInfo = await rpcSolanaClient.GetAccountInfoAsync(nftPublicKey);
+  public async void GetAccountInfo() {
+    // Convert the NFT address string to a PublicKey object.
+    PublicKey nftPublicKey = new PublicKey(nftSolanaAddress);
+    // Get the account info of the NFT.
+    var accountInfoResult =
+        await rpcSolanaClient.GetAccountInfoAsync(nftPublicKey);
+    if (accountInfoResult.WasSuccessful) {
+      // List<AccountInfo> accountInfoList = new List<AccountInfo>();
+      accountInfoList.Add(accountInfoResult.Result.Value);
+    } else {
+      Debug.LogError($"Failed to get account info: {accountInfoResult}");
+    }
+    PrintAccountInfo(accountInfoList);
   }
 
   void OnDestroy() {
@@ -54,19 +50,18 @@ public class Land : MonoBehaviour {
     scriptAttached = false;
   }
 
-  public void PrintAccountInfo(List<Solana.Unity.Wallet.Account> accountInfoList)
-  {
-      foreach(var accountInfo in accountInfoList)
-      {
-          Debug.Log($"Account owner: {accountInfo.PublicKey}");
-      }
+  public void
+  PrintAccountInfo(List<Solana.Unity.Rpc.Models.AccountInfo> accountInfoList) {
+    foreach (var accountInfo in accountInfoList) {
+      Debug.Log($"Account owner: {accountInfo}");
+    }
   }
 
   // Start is called before the first frame update.
   void Start() {
     InvokeRepeating("UpdatePerMinute", 2.0f, 60.0f);
     InvokeRepeating("UpdatePerSecond", 1.0f, 1.0f);
-  
+
     if (nftSolanaAddress.Length > 0) {
       Debug.Log("NFT: " + nftSolanaAddress);
       GetAccountInfo();
@@ -79,15 +74,14 @@ public class Land : MonoBehaviour {
   // Update is called once per minute.
   void UpdatePerMinute() {
     if (nftSolanaAddress.Length > 0) {
-      Debug.Log("NFT3: " + nftSolanaAddress);
+      Debug.Log("NFT: " + nftSolanaAddress);
     }
   }
 
   // Update is called once per second.
   void UpdatePerSecond() {
     if (nftSolanaAddress.Length > 0) {
-      // Debug.Log("NFT2: " + nftSolanaAddress);
+      // Debug.Log("NFT: " + nftSolanaAddress);
     }
   }
-
 }
